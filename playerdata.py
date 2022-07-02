@@ -5,17 +5,11 @@ from filehandler import FileHandler
 
 class Player:
     def __init__(self):
-        self.filehandler = FileHandler()
         self.cards_for_game = []
-        self.get_last_profile()
 
-    def load_profile(self, name):
-        self.cards_for_game, self.cardlist = self.filehandler.load_profile(name)
-
-    def create_starter_deck(self, name):
+    def create_starter_deck(self, name, cardlist):
         self.name = name
-        self.filehandler.profile_created(name)
-        self.cardlist = self.filehandler.create_starter_deck()
+        self.cardlist = cardlist
         templist = []
         for i in range(5):
             index = random.randrange(0, len(self.cardlist))
@@ -24,11 +18,6 @@ class Player:
 
         for index in templist:
             self.cards_for_game.append(self.cardlist[index])
-
-        self.save_data()
-
-    def save_data(self):
-        self.filehandler.save_profile(self.name, self.cardlist, self.cards_for_game)
 
     def get_cards(self):
         return self.cardlist
@@ -39,8 +28,19 @@ class Player:
     def get_hand(self):
         return self.cards_for_game
 
-    def get_last_profile(self):
-        self.name, self.cardlist, self.cards_for_game = self.filehandler.get_last_profile()
+    def get_profile_data(self):
+        return self.name, self.cardlist, self.cards_for_game
+
+    def set_from_profile(self, name, cardlist, hand):
+        self.name = name
+        self.cardlist = cardlist
+        self.cards_for_game = hand
+
+    def set_name(self, name):
+        self.name = name
+
+    def set_cardlist(self, cardlist):
+        self.cardlist = cardlist
 
 
 

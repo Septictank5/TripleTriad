@@ -1,6 +1,6 @@
 import PyQt5.QtWidgets as qtw
 from LobbyUI import LobbyWindow
-from playerdata import Player
+from cardsinterface import CardHandler
 from deckviewer import DeckViewer
 from GameUI import GameWindow
 import sys
@@ -10,25 +10,24 @@ from Client_Comms import ClientUI
 class TripleTriad:
     def __init__(self):
         self.comms = ClientUI()
+        self.cardsmanager = CardHandler()
         self.comms.readyRead.connect(self.receive_data)
         self.main_menu = self.comms.get_window()
         self.deck_viewer = DeckViewer(self.main_menu)
         self.lobby_screen = LobbyWindow(self.main_menu)
         self._connect_signals()
         self.main_menu.show()
-        self.player = Player()
         self.startup()
-        #  self.cards_for_game = None
 
     def startup(self):
-        if self.player.get_name() is None:
+        if self.cardsmanager.get_name() is None:
             playername = ''
             while playername == '':
                 playername = self.comms.prompt_create_profile()[0]
-            self.player.create_starter_deck(playername)
+            self.cardsmanager.create_starter_deck(playername)
 
     def shutdown(self):
-        self.player.save_data()
+        self.cardsmanager.save_data()
         sys.exit()
 
     def _connect_signals(self):
@@ -41,8 +40,8 @@ class TripleTriad:
         self.deck_viewer.finished.connect(self._get_hand)
 
     def start_cardviewer(self):
-        self.deck_viewer.set_hand(self.player.get_hand())
-        self.deck_viewer.start_viewer(self.player.get_cards())
+        self.deck_viewer.set_hand(self.cardsmanager.get_hand())
+        self.deck_viewer.start_viewer(self.cardsmanager.get_cards())
         self.deck_viewer.exec()
 
     def receive_data(self, testdata=None):
@@ -89,7 +88,7 @@ class TripleTriad:
         self.comms.send_game_starting(self.mycards)
 
     def create_game_window(self):
-        self.mycards = self.player.get_hand()
+        self.mycards = self.cardsmanager.get_hand()
         self.all_cards = self.mycards + self.opponent_cards
         self.lobby_screen.close()
         self.game = GameWindow(self.main_menu, self.all_cards)
@@ -106,7 +105,7 @@ class TripleTriad:
 
     def ready_up(self):
         self.lobby_screen.update_self_ready()
-        self.comms.player_ready(self.player.get_hand())
+        self.comms.player_ready(self.cardsmanager.get_hand())
 
     def unready(self):
         self.lobby_screen.update_self_not_ready()

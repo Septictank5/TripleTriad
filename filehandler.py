@@ -47,7 +47,6 @@ class FileHandler:
 
         return cards_for_game, cardlist
 
-
     def get_last_profile(self):
         with open(self.saveslist, 'r') as savelist:
             filename = savelist.readline()

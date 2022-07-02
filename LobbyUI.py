@@ -6,6 +6,7 @@ from GameUI import GameWindow
 class LobbyWindow(qtw.QMainWindow):
     def __init__(self, parent):
         super().__init__(parent)
+
         self.setWindowTitle('Lobby')
         self.setFixedSize(1200, 900)
         self.generallayout = qtw.QGridLayout()
