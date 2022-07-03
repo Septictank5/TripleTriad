@@ -16,33 +16,34 @@ class FileHandler:
             pass
 
     def profile_created(self, name):
-        profile = self.directory + name + '.txt'
+        self.active_profile = self.directory + name + '.txt'
         with open(self.saveslist, 'w') as afile:
-            afile.write(profile)
-        with open(profile, 'w') as savefile:
+            afile.write(self.active_profile)
+        with open(self.active_profile, 'w') as savefile:
             json.dump({}, savefile, indent=4)
 
-    def save_profile(self, name, cardlist, cards_for_game):
-        profile = self.directory + name + '.txt'
-        self._create_backup(profile)
-        with open(profile, 'w') as savefile:
+    def save_profile(self, cardlist, cards_for_game):
+
+        self._create_backup(self.active_profile)
+        with open(self.active_profile, 'w') as savefile:
             json.dump([cards_for_game, cardlist], savefile, indent=4)
 
         with open(self.saveslist, 'r') as savelist:
             data = savelist.readlines()
 
-        if profile in data:
-            index = data.index(profile)
+        if self.active_profile in data:
+            index = data.index(self.active_profile)
             moving = data.pop(index)
             data.insert(0, moving)
         else:
-            data.insert(0, profile)
+            data.insert(0, self.active_profile)
 
         with open(self.saveslist, 'w') as savelist:
             savelist.writelines(data)
 
     def load_profile(self, name):
-        with open(self.directory + name + '.txt', 'r')as afile:
+        self.active_profile = self.directory + name + '.txt'
+        with open(self.active_profile, 'r') as afile:
             cards_for_game, cardlist = json.load(afile)
 
         return cards_for_game, cardlist
@@ -58,6 +59,7 @@ class FileHandler:
             cards_for_game, cardlist = json.load(cardfile)
 
         player_name = self.get_name_from_filename(filename)
+        self.active_profile = filename
 
         return player_name, cardlist, cards_for_game
 
@@ -98,7 +100,23 @@ class FileHandler:
 
         return templist
 
+    def update_and_save(self, cards, cards_for_game):
+        templist = []
+        for group in self.card_data:
+            for card in group:
+                if card in cards:
+                    templist.append(card)
+
+        self.save_profile(cards, cards_for_game)
+
     def _create_backup(self, profile):
         fix1 = profile[:len(profile) - 4]
         backup = fix1 + '_backup.txt'
         copyfile(profile, backup)
+
+    def get_card_data(self):
+        return self.card_data
+
+    def get_random_card_from_group(self, group):
+        index = random.randrange(0, len(self.card_data[group]))
+        return self.card_data[group][index]

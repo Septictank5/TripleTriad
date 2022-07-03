@@ -2,11 +2,12 @@ import PyQt5.QtGui as qtg
 import PyQt5.QtCore as qtc
 import PyQt5.QtWidgets as qtw
 from battlerules import BattleRules
-import random
 
 
 class Card(qtw.QLabel):
-    def __init__(self, cardid, carddict, isplayers=True):
+    card_clicked = qtc.pyqtSignal([object])
+
+    def __init__(self, cardid, carddict, isplayers=True, can_move=True, can_click=False):
         super().__init__()
         self.id = cardid
         self.name = carddict['name']
@@ -18,7 +19,7 @@ class Card(qtw.QLabel):
             'right': carddict['right'],
             'bottom': carddict['bottom']
         }
-        self.can_move = True
+        self.can_move = can_move
 
         self.isPlayers = isplayers
         self.setPixmap(qtg.QPixmap(self.bluefile)) if self.isPlayers is True else self.setPixmap(
@@ -26,6 +27,9 @@ class Card(qtw.QLabel):
 
         self.setFixedSize(125, 158)
         self.setScaledContents(True)
+
+    def mousePressEvent(self, event: qtg.QMouseEvent) -> None:
+        self.card_clicked.emit(self)
 
     def mouseMoveEvent(self, event: qtg.QMouseEvent) -> None:
         if self.id > 4 or not self.can_move:
@@ -112,8 +116,11 @@ class Cell(qtw.QLabel):
         return self.card
 
 
-class BoardHandler:
+class BoardHandler(qtc.QObject):
+    gameover = qtc.pyqtSignal()
+
     def __init__(self):
+        super().__init__()
         self.cells = []
         self.rule_handler = BattleRules()
 
@@ -130,13 +137,22 @@ class BoardHandler:
                     templist.append((key, self.cells[value]))
 
         self.rule_handler.execute(cellref, templist)
+        self._check_end_game()
 
     def battle_by_update(self, cellid, card):
         self.cells[cellid].update_cell_card(card)
         self.battle(self.cells[cellid])
 
-    def set_player(self, player):
-        self.player = player
-
     def get_cells(self):
         return self.cells
+
+    def _check_end_game(self):
+        filled_cells = 0
+        for cell in self.cells:
+            if cell.card is not None:
+                filled_cells += 1
+        if filled_cells == 9:
+            self.gameover.emit()
+
+
+

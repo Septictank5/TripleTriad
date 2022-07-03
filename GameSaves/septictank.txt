@@ -601,6 +601,276 @@
             "right": 5,
             "bottom": 2,
             "group": 6
+        },
+        {
+            "bluefile": "FF8n/tonberry.jpg",
+            "bottom": 4,
+            "group": 2,
+            "left": 4,
+            "name": "Tonberry",
+            "redfile": "FF8n/rtonberry.jpg",
+            "right": 6,
+            "top": 3
+        },
+        {
+            "bluefile": "FFT/CeliaLede.jpg",
+            "bottom": 7,
+            "group": 4,
+            "left": 7,
+            "name": "Celia/Lede",
+            "redfile": "FFT/rCeliaLede.jpg",
+            "right": 3,
+            "top": 1
+        },
+        {
+            "bluefile": "FF8n/belhelmel.jpg",
+            "bottom": 5,
+            "group": 1,
+            "left": 3,
+            "name": "Belhelmel",
+            "redfile": "FF8n/rbelhelmel.jpg",
+            "right": 4,
+            "top": 3
+        },
+        {
+            "bluefile": "FF9/ragtimemouse.jpg",
+            "bottom": 2,
+            "group": 1,
+            "left": 5,
+            "name": "Ragtime Mouse",
+            "redfile": "FF9/rragtimemouse.jpg",
+            "right": 5,
+            "top": 2
+        },
+        {
+            "bluefile": "FFX2/Coeurl.jpg",
+            "bottom": 7,
+            "group": 2,
+            "left": 2,
+            "name": "Coeurl",
+            "redfile": "FFX2/rCoeurl.jpg",
+            "right": 5,
+            "top": 2
+        },
+        {
+            "bluefile": "FFX2/MachinaPanzer.jpg",
+            "bottom": 7,
+            "group": 3,
+            "left": 3,
+            "name": "Machina Panzer",
+            "redfile": "FFX2/rMachinaPanzer.jpg",
+            "right": 3,
+            "top": 5
+        },
+        {
+            "bluefile": "FFX2/SahaginChief.jpg",
+            "bottom": 6,
+            "group": 2,
+            "left": 4,
+            "name": "Sahagin Chief",
+            "redfile": "FFX2/rSahaginChief.jpg",
+            "right": 4,
+            "top": 2
+        },
+        {
+            "bluefile": "FF9/shelldragon.jpg",
+            "bottom": 6,
+            "group": 3,
+            "left": 4,
+            "name": "Shell Dragon",
+            "redfile": "FF9/rshelldragon.jpg",
+            "right": 7,
+            "top": 1
+        },
+        {
+            "bluefile": "FFXIII/Taxim.jpg",
+            "bottom": 3,
+            "group": 3,
+            "left": 7,
+            "name": "Taxim",
+            "redfile": "FFXIII/rTaxim.jpg",
+            "right": 4,
+            "top": 5
+        },
+        {
+            "bluefile": "DL/Dezra.jpg",
+            "bottom": 7,
+            "group": 1,
+            "left": 2,
+            "name": "Dezra Majere",
+            "redfile": "DL/rDezra.jpg",
+            "right": 1,
+            "top": 1
+        },
+        {
+            "bluefile": "FFX/Gandarewa.jpg",
+            "bottom": 1,
+            "group": 1,
+            "left": 5,
+            "name": "Gandarewa",
+            "redfile": "FFX/rGandarewa.jpg",
+            "right": 5,
+            "top": 3
+        },
+        {
+            "bluefile": "S3/Mio.jpg",
+            "bottom": 5,
+            "group": 2,
+            "left": 2,
+            "name": "Mio",
+            "redfile": "S3/rMio.jpg",
+            "right": 7,
+            "top": 2
+        },
+        {
+            "bluefile": "FFT/Tiamat.jpg",
+            "bottom": 7,
+            "group": 3,
+            "left": 6,
+            "name": "Tiamat",
+            "redfile": "FFT/rTiamat.jpg",
+            "right": 2,
+            "top": 3
+        },
+        {
+            "bluefile": "FF7/HellRiderVR2.jpg",
+            "bottom": 3,
+            "group": 3,
+            "left": 7,
+            "name": "Hell Rider VR2",
+            "redfile": "FF7/rHellRiderVR2.jpg",
+            "right": 3,
+            "top": 3
+        },
+        {
+            "bluefile": "FF8n/sam08g.jpg",
+            "bottom": 2,
+            "group": 2,
+            "left": 4,
+            "name": "Sam08g",
+            "redfile": "FF8n/rsam08g.jpg",
+            "right": 6,
+            "top": 5
+        },
+        {
+            "bluefile": "CT/Mage.jpg",
+            "bottom": 6,
+            "group": 3,
+            "left": 3,
+            "name": "Mage",
+            "redfile": "CT/rMage.jpg",
+            "right": 4,
+            "top": 6
+        },
+        {
+            "bluefile": "DQ/HellHornet.jpg",
+            "bottom": 3,
+            "group": 1,
+            "left": 2,
+            "name": "Hell Hornet",
+            "redfile": "DQ/rHellHornet.jpg",
+            "right": 7,
+            "top": 1
+        },
+        {
+            "bluefile": "FF4/greendragon.jpg",
+            "bottom": 7,
+            "group": 3,
+            "left": 5,
+            "name": "Green Dragon",
+            "redfile": "FF4/rgreendragon.jpg",
+            "right": 4,
+            "top": 3
+        },
+        {
+            "bluefile": "FF9/cactuar.jpg",
+            "bottom": 3,
+            "group": 1,
+            "left": 2,
+            "name": "Cactuar",
+            "redfile": "FF9/rcactuar.jpg",
+            "right": 3,
+            "top": 6
+        },
+        {
+            "bluefile": "FFX/MechGuard.jpg",
+            "bottom": 7,
+            "group": 1,
+            "left": 2,
+            "name": "Mech Guard",
+            "redfile": "FFX/rMechGuard.jpg",
+            "right": 3,
+            "top": 3
+        },
+        {
+            "bluefile": "FF5/Torrent.jpg",
+            "bottom": 1,
+            "group": 1,
+            "left": 3,
+            "name": "Torrent",
+            "redfile": "FF5/rTorrent.jpg",
+            "right": 2,
+            "top": 6
+        },
+        {
+            "bluefile": "FF4/vampgirl.jpg",
+            "bottom": 6,
+            "group": 2,
+            "left": 3,
+            "name": "Vamp Girl",
+            "redfile": "FF4/rvampgirl.jpg",
+            "right": 5,
+            "top": 3
+        },
+        {
+            "bluefile": "S3/Shiba.jpg",
+            "bottom": 6,
+            "group": 4,
+            "left": 7,
+            "name": "Shiba",
+            "redfile": "S3/rShiba.jpg",
+            "right": 6,
+            "top": 1
+        },
+        {
+            "bluefile": "FF9/ogre.jpg",
+            "bottom": 2,
+            "group": 2,
+            "left": 5,
+            "name": "Ogre",
+            "redfile": "FF9/rogre.jpg",
+            "right": 3,
+            "top": 6
+        },
+        {
+            "bluefile": "FF7/TwinBrain.jpg",
+            "bottom": 2,
+            "group": 1,
+            "left": 2,
+            "name": "Twin Brain",
+            "redfile": "FF7/rTwinBrain.jpg",
+            "right": 6,
+            "top": 3
+        },
+        {
+            "bluefile": "FFO/Mummy.jpg",
+            "bottom": 1,
+            "group": 1,
+            "left": 3,
+            "name": "Mummy",
+            "redfile": "FFO/rMummy.jpg",
+            "right": 6,
+            "top": 4
+        },
+        {
+            "bluefile": "FFX2/CriticalBug.jpg",
+            "bottom": 5,
+            "group": 3,
+            "left": 2,
+            "name": "Critical Bug",
+            "redfile": "FFX2/rCriticalBug.jpg",
+            "right": 7,
+            "top": 5
         }
     ]
 ]

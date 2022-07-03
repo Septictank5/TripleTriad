@@ -61,11 +61,13 @@ class TripleTriad:
             self.game.do_battle(cellid, cardid)
 
         elif command == 'Connection Established As Host':
-            self.setup_host_settings()
+            self.host = True
+            self.initialize_settings()
             self.comms.host_success()
 
         elif command == 'Connection Established As Client':
-            self.setup_client_settings()
+            self.host = False
+            self.initialize_settings()
 
         elif command == 'Ready':
             self.opponent_cards = data
@@ -89,9 +91,13 @@ class TripleTriad:
 
     def create_game_window(self):
         self.mycards = self.cardsmanager.get_hand()
-        self.all_cards = self.mycards + self.opponent_cards
-        self.lobby_screen.close()
-        self.game = GameWindow(self.main_menu, self.all_cards)
+        self.cardsmanager.set_game_cards(self.mycards + self.opponent_cards)
+        reward_logic_index = self.lobby_screen.get_rr_box_index()
+        self.cardsmanager.set_reward_logic(reward_logic_index)
+        self.lobby_screen.hide()
+        self.game = GameWindow(self.main_menu, self.cardsmanager)
+        self.game.get_confirmed_rewards().connect(self.handle_gameover)
+        self.game.show()
         cells = self.game.get_cells()
 
         for cell in cells:
@@ -111,17 +117,33 @@ class TripleTriad:
         self.lobby_screen.update_self_not_ready()
         self.comms.player_not_ready()
 
-    def setup_host_settings(self):
-        self.lobby_screen.set_turn()
-        self.lobby_screen.host_setup()
-        self.is_host = True
-        self.lobby_screen.show()
+    def initialize_settings(self):
+        if self.host:
+            self.lobby_screen.set_turn()
+            self.lobby_screen.host_setup()
+            self.lobby_screen.update_other_not_ready()
+            self.is_host = True
+            self.lobby_screen.show()
 
-    def setup_client_settings(self):
-        self.lobby_screen.set_turn(False)
-        self.lobby_screen.client_setup()
-        self.is_host = False
-        self.lobby_screen.show()
+        else:
+            self.lobby_screen.set_turn(False)
+            self.lobby_screen.client_setup()
+            self.lobby_screen.update_self_not_ready()
+            self.is_host = False
+            self.lobby_screen.show()
+
+    def handle_gameover(self, cards: list, winstatus: str):
+        if len(cards) > 0:
+            if winstatus == 'WINNER':
+                self.cardsmanager.add_cards_to_playerdata(cards)
+            if winstatus == 'LOSER':
+                self.cardsmanager.remove_cards_from_playerdata(cards)
+        self.game.close()
+        self.flip_host()
+        self.initialize_settings()
+
+    def flip_host(self):
+        self.host = self.host is False
 
     # noinspection PyUnusedLocal
     def _get_hand(self, value):
