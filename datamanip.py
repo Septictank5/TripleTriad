@@ -10,11 +10,7 @@ class DataHandler:
             'Connect To Client': self.connect_to_client,
             'To Other Client': self.pass_through,
             'Request Server List': self.server_list_request,
-            'Remove From Server List': self.close_game,
-            'Ready': self.inform_ready,
-            'Not Ready': self.inform_not_ready,
-            'Game Start': self.game_start,
-            'Move Update': self.move_update
+            'Remove From Server List': self.close_game
         }
 
     def add_to_server_list(self, socket, cipher_data):
@@ -66,6 +62,14 @@ class DataHandler:
     def move_update(self, socket, data):
         move_update = self.turn_to_dict('Move Update', data)
         self.pass_through(socket, move_update)
+
+    def card_lost(self, socket, data):
+        card_lost = self.turn_to_dict('Card Lost', data)
+        self.pass_through(socket, card_lost)
+
+    def reward_update(self, socket, data):
+        reward_update = self.turn_to_dict('Reward Update', data)
+        self.pass_through(socket, reward_update)
 
     def pass_through(self, socket, cipher_data):
         for sock1, sock2 in self.connectionpairs:

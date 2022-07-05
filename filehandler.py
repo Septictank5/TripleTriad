@@ -23,7 +23,6 @@ class FileHandler:
             json.dump({}, savefile, indent=4)
 
     def save_profile(self, cardlist, cards_for_game):
-
         self._create_backup(self.active_profile)
         with open(self.active_profile, 'w') as savefile:
             json.dump([cards_for_game, cardlist], savefile, indent=4)

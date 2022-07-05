@@ -69,6 +69,12 @@ class ClientUI(Client):
     def card_place_notify(self, cell):
         self.send('Move Update', [cell.id, cell.card.id])
 
+    def send_card_loss(self, card):
+        self.send('Card Lost', card)
+
+    def update_reward_setting(self, index):
+        self.send('Reward Update', index)
+
     def prompt_create_profile(self):
         return self.input_dialog.prompt_create_profile()
 

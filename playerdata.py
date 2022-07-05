@@ -11,10 +11,11 @@ class Player:
         self.name = name
         self.cardlist = cardlist
         templist = []
+        index = random.randrange(0, len(self.cardlist))
         for i in range(5):
-            index = random.randrange(0, len(self.cardlist))
-            if index not in templist:
-                templist.append(index)
+            while index in templist:
+                index = random.randrange(0, len(self.cardlist))
+            templist.append(index)
 
         for index in templist:
             self.hand.append(self.cardlist[index])

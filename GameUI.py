@@ -3,11 +3,10 @@ import PyQt5.QtWidgets as qtw
 import PyQt5.QtCore as qtc
 from Board import BoardHandler, Card
 from cardsinterface import CardHandler
-from random import randrange
 
 
 class WinScreen(qtw.QDialog):
-    rewards_confirmed = qtc.pyqtSignal([list, str])
+    rewards_confirmed = qtc.pyqtSignal([list, str, int])
 
     def __init__(self, parent, cardmanager: CardHandler):
         super().__init__(parent)
@@ -35,37 +34,44 @@ class WinScreen(qtw.QDialog):
         self.cardobjects = []
         if self.winstatus == 'LOSER':
             self.setWindowTitle('Reven')
-            self.winloss_text.setText(f"You are a {self.winstatus}!!!\n-Cards Lost-")
+            if self.logic_index == 1:
+                self.awaiting_card()
+                return
+            else:
+                self.winloss_text.setText(f"You Lose!!!\n-Cards Lost-")
             self.cards = self.cardmanager.get_rewards()[1]
         elif self.winstatus == 'WINNER':
-            self.winloss_text.setText(f"You are a {self.winstatus}!!!\n-Cards Won-")
+            self.winloss_text.setText(f"You Win!!!\n-Cards Won-")
             self.cards = self.cardmanager.get_rewards()[0]
         else:
-            self.winloss_text.setText(f"Tie Game, take a random card!")
+            self.winloss_text.setText(f"Tie Game!!!\nTake a random card!")
             self.cards = [self.cardmanager.get_random_card()]
 
         if not self.cards:
-            self.winloss_text.setText(f"You are a {self.winstatus}!!!\n Luckily for you, no cards lost!")
+            self.winloss_text.setText(f"You Lose!!!\n Luckily for you, no cards lost!")
             self.rewards = []
             return
 
         for index, card in enumerate(self.cards):
             if self.logic_index == 1:
-                self.cardobjects.append(Card(index, card, can_click=True))
+                self.cardobjects.append(Card(index, card, can_move=False, can_click=True))
                 self.cardobjects[index].card_clicked.connect(self.display_card)
             else:
-                self.cardobjects.append(Card(index, card))
+                self.cardobjects.append(Card(index, card, can_move=False))
                 if card == self.cards[-1]:
                     self.rewards = self.cards
             self.cardlayout.addWidget(self.cardobjects[index])
 
+    def awaiting_card(self):
+        self.winloss_text.setText(f"You have lost!\nAwaiting other player to choose a card...")
+
     def display_card(self, card_choice):
         self.card_chosen = True
-        for card in self.cardobjects:
+        for index, card in enumerate(self.cardobjects):
             if card == card_choice:
-                self.rewards = [card]
-                continue
-            self.cardlayout.removeWidget(card)
+                self.rewards = [self.cards[index]]
+            else:
+                card.close()
 
     def get_card_click_signals(self):
         templist = []
@@ -80,11 +86,20 @@ class WinScreen(qtw.QDialog):
     def get_winstatus(self):
         return self.winstatus
 
+    def card_loss_update(self, cards):
+        self.winloss_text.setText(f"Opponent Chose the following Card(s)!\n -Card Lost-")
+        self.rewards = cards
+        for card in cards:
+            cardobject = Card(0, card, can_move=False)
+            self.cardlayout.addWidget(cardobject)
+        self.card_chosen = True
+
     def closeEvent(self, event: qtg.QCloseEvent) -> None:
         if self.card_chosen is False and self.logic_index == 1:
             event.ignore()
+            return
 
-        self.rewards_confirmed.emit(self.rewards, self.winstatus)
+        self.rewards_confirmed.emit(self.rewards, self.winstatus, self.logic_index)
 
 
 class GameWindow(qtw.QMainWindow):
@@ -169,4 +184,6 @@ class GameWindow(qtw.QMainWindow):
             self.winscreen.set_winstatus('LOSER')
         else:
             self.winscreen.set_winstatus('TIED')
+
         self.winscreen.show()
+

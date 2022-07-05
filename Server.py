@@ -61,6 +61,10 @@ class MainWindow(qtw.QMainWindow):
             return
         self.status_messages.append(f"{command} received from {self.comms.get_socket_address(socket)}")
         self.status_messages.append(f"{data}")
+        if command not in self.datahandler.mydict.keys():
+            cipher_data = self.datahandler.turn_to_dict(command, data)
+            self.datahandler.pass_through(socket, cipher_data)
+            return
         self.datahandler.mydict[command](socket, data)
 
     def socket_disconnected(self, socket):

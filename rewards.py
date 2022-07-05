@@ -36,11 +36,11 @@ class RewardsHandler:
         return card_rewards, None
 
     def win_1_lose_1(self, card_data: list, game_cards: list):
-        win_loss_cards = game_cards[:5]
+        win_loss_cards = game_cards[5:]
         return win_loss_cards, win_loss_cards
 
     def win_all_lose_all(self, card_data: list, game_cards: list):
-        win_loss_cards = game_cards[:5]
+        win_loss_cards = game_cards[5:]
         return win_loss_cards, win_loss_cards
 
     def _get_average_card_level(self, cards):

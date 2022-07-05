@@ -20,6 +20,7 @@ class Card(qtw.QLabel):
             'bottom': carddict['bottom']
         }
         self.can_move = can_move
+        self.can_click = can_click
 
         self.isPlayers = isplayers
         self.setPixmap(qtg.QPixmap(self.bluefile)) if self.isPlayers is True else self.setPixmap(
@@ -29,7 +30,10 @@ class Card(qtw.QLabel):
         self.setScaledContents(True)
 
     def mousePressEvent(self, event: qtg.QMouseEvent) -> None:
-        self.card_clicked.emit(self)
+        if self.can_click:
+            self.card_clicked.emit(self)
+        else:
+            event.ignore()
 
     def mouseMoveEvent(self, event: qtg.QMouseEvent) -> None:
         if self.id > 4 or not self.can_move:
@@ -60,6 +64,9 @@ class Card(qtw.QLabel):
 
     def get_pixmap(self):
         return self.pixmap()
+
+    def set_clickable(self):
+        self.can_click = self.can_click is False
 
 
 class Cell(qtw.QLabel):
@@ -95,7 +102,6 @@ class Cell(qtw.QLabel):
         event.source().move(self.pos())
         event.setDropAction(qtc.Qt.MoveAction)
         self.card = event.source()
-        print(event.source(), self.id)
         self.card.reset_pixmap()
         self.setPixmap(self.card.get_pixmap())
         event.accept()

@@ -105,8 +105,8 @@ class LobbyWindow(qtw.QMainWindow):
         self.ready_label.setFont(labelfont)
         self.rightpanel.addWidget(self.ready_label, 7)
 
-    def get_rr_box_index(self):
-        return self.rr_box.currentIndex()
+    def get_rr_box_update(self):
+        return self.rr_box.activated
 
     def start_clicked(self):
         return self.start_button.clicked
@@ -150,11 +150,16 @@ class LobbyWindow(qtw.QMainWindow):
         self.ready_button.hide()
         self.unready_button.hide()
         self.start_button.show()
+        self.flip_settings_enabled()
 
     def client_setup(self):
         self.player = 2
         self.other_player = 1
         self.start_button.hide()
-        self.ruleset_box.setDisabled(True)
-        self.rr_box.setDisabled(True)
-        self.restrictions_box.setDisabled(True)
+        self.flip_settings_enabled()
+
+    def flip_settings_enabled(self):
+        value = self.rr_box.isEnabled() is False
+        self.rr_box.setEnabled(value)
+        self.ruleset_box.setEnabled(value)
+        self.restrictions_box.setEnabled(value)

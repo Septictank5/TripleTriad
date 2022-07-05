@@ -37,6 +37,7 @@ class TripleTriad:
         self.lobby_screen.start_clicked().connect(self.game_start)
         self.lobby_screen.ready_clicked().connect(self.ready_up)
         self.lobby_screen.unready_clicked().connect(self.unready)
+        self.lobby_screen.get_rr_box_update().connect(self.update_reward_setting)
         self.deck_viewer.finished.connect(self._get_hand)
 
     def start_cardviewer(self):
@@ -82,6 +83,12 @@ class TripleTriad:
             cells = self.game.get_cells()
             for cell in cells:
                 cell.setAcceptDrops(False)
+
+        elif command == 'Reward Update':
+            self.update_reward_setting(data)
+
+        elif command == 'Card Lost':
+            self.game.winscreen.card_loss_update(data)
         else:
             self.comms.handle_data(command, data)
 
@@ -92,8 +99,6 @@ class TripleTriad:
     def create_game_window(self):
         self.mycards = self.cardsmanager.get_hand()
         self.cardsmanager.set_game_cards(self.mycards + self.opponent_cards)
-        reward_logic_index = self.lobby_screen.get_rr_box_index()
-        self.cardsmanager.set_reward_logic(reward_logic_index)
         self.lobby_screen.hide()
         self.game = GameWindow(self.main_menu, self.cardsmanager)
         self.game.get_confirmed_rewards().connect(self.handle_gameover)
@@ -102,6 +107,13 @@ class TripleTriad:
 
         for cell in cells:
             cell.cardplaced.connect(self.card_placed)
+
+    def update_reward_setting(self, index):
+        self.cardsmanager.set_reward_logic(index)
+        if self.host:
+            self.comms.update_reward_setting(index)
+        else:
+            self.lobby_screen.rr_box.setCurrentIndex(index)
 
     def card_placed(self, cell):
         cells = self.game.get_cells()
@@ -132,7 +144,9 @@ class TripleTriad:
             self.is_host = False
             self.lobby_screen.show()
 
-    def handle_gameover(self, cards: list, winstatus: str):
+    def handle_gameover(self, cards: list, winstatus: str, logic_index: int):
+        if logic_index == 1:
+            self.comms.send_card_loss(cards)
         if len(cards) > 0:
             if winstatus == 'WINNER':
                 self.cardsmanager.add_cards_to_playerdata(cards)

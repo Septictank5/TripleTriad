@@ -22,7 +22,7 @@ class CardHandler:
         cardlist = self.filehandler.create_starter_deck()
         self.player.create_starter_deck(name, cardlist)
         hand = self.player.get_hand()
-        self.filehandler.save_profile(name, cardlist, hand)
+        self.filehandler.save_profile(cardlist, hand)
 
     def get_last_profile(self):
         name, cardlist, hand = self.filehandler.get_last_profile()
@@ -46,6 +46,7 @@ class CardHandler:
         return self.rewards.execute(card_data, self.game_cards)
 
     def set_reward_logic(self, index):
+        print(index)
         self.rewards.set_logic(index)
 
     def get_logic(self):
