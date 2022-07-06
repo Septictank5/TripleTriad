@@ -24,6 +24,7 @@ class LobbyWindow(qtw.QMainWindow):
         self._add_rules()
         self._add_restrictions()
         self._add_risk_reward()
+        self.flip_settings_enabled()
         self._add_labels()
         self.panelpad = qtw.QWidget()
         self.panelpad.setFixedSize(250, 600)

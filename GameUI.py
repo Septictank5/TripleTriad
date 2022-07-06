@@ -87,7 +87,7 @@ class WinScreen(qtw.QDialog):
         return self.winstatus
 
     def card_loss_update(self, cards):
-        self.winloss_text.setText(f"Opponent Chose the following Card(s)!\n -Card Lost-")
+        self.winloss_text.setText(f"Opponent Chose the following Card(s)!\n -Card(s) Lost-")
         self.rewards = cards
         for card in cards:
             cardobject = Card(0, card, can_move=False)

@@ -107,6 +107,7 @@ class FileHandler:
                     templist.append(card)
 
         self.save_profile(cards, cards_for_game)
+        return templist
 
     def _create_backup(self, profile):
         fix1 = profile[:len(profile) - 4]

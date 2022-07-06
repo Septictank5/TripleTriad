@@ -18,6 +18,16 @@ class TripleTriad:
         self._connect_signals()
         self.main_menu.show()
         self.startup()
+        self.handle_command = {
+            'Move Update': self._move_update,
+            'Connection Established As Host': self._host_game,
+            'Connection Established As Client': self._client_game,
+            'Ready': self._ready,
+            'Not Ready': self._not_ready,
+            'Game Start': self._game_start,
+            'Reward Update': self._reward_update,
+            'Card Lost': self._card_lost
+        }
 
     def startup(self):
         if self.cardsmanager.get_name() is None:
@@ -34,9 +44,9 @@ class TripleTriad:
         self.main_menu.quit_clicked().connect(self.lobby_screen.show)
         self.main_menu.deck_viewer_clicked().connect(self.start_cardviewer)
         self.lobby_screen.view_deck_clicked().connect(self.start_cardviewer)
-        self.lobby_screen.start_clicked().connect(self.game_start)
-        self.lobby_screen.ready_clicked().connect(self.ready_up)
-        self.lobby_screen.unready_clicked().connect(self.unready)
+        self.lobby_screen.start_clicked().connect(self.start_game)
+        self.lobby_screen.ready_clicked().connect(self.send_ready)
+        self.lobby_screen.unready_clicked().connect(self.send_not_ready)
         self.lobby_screen.get_rr_box_update().connect(self.update_reward_setting)
         self.deck_viewer.finished.connect(self._get_hand)
 
@@ -54,47 +64,51 @@ class TripleTriad:
         if command is None:
             return
 
-        if command == 'Move Update':
-            cells = self.game.get_cells()
-            for cell in cells:
-                cell.setAcceptDrops(True)
-            cellid, cardid = data
-            self.game.do_battle(cellid, cardid)
-
-        elif command == 'Connection Established As Host':
-            self.host = True
-            self.initialize_settings()
-            self.comms.host_success()
-
-        elif command == 'Connection Established As Client':
-            self.host = False
-            self.initialize_settings()
-
-        elif command == 'Ready':
-            self.opponent_cards = data
-            self.lobby_screen.update_other_ready()
-
-        elif command == 'Not Ready':
-            self.lobby_screen.update_other_not_ready()
-
-        elif command == 'Game Start':
-            self.opponent_cards = data
-            self.create_game_window()
-            cells = self.game.get_cells()
-            for cell in cells:
-                cell.setAcceptDrops(False)
-
-        elif command == 'Reward Update':
-            self.update_reward_setting(data)
-
-        elif command == 'Card Lost':
-            self.game.winscreen.card_loss_update(data)
+        if command in self.handle_command.keys():
+            self.handle_command[command](data)
         else:
             self.comms.handle_data(command, data)
 
-    def game_start(self):
+    def _host_game(self, data):
+        self.host = True
+        self.initialize_settings()
+        self.comms.host_success()
+
+    def _client_game(self, data):
+        self.host = False
+        self.initialize_settings()
+        self.lobby_screen.flip_settings_enabled()
+
+    def _ready(self, data):
+        self.opponent_cards = data
+        self.lobby_screen.update_other_ready()
+
+    def _not_ready(self, data):
+        self.lobby_screen.update_other_not_ready()
+
+    def _move_update(self, data):
+        cells = self.game.get_cells()
+        for cell in cells:
+            cell.setAcceptDrops(True)
+        cellid, cardid = data
+        self.game.do_battle(cellid, cardid)
+
+    def _card_lost(self, data):
+        self.game.winscreen.card_loss_update(data)
+
+    def _reward_update(self, data):
+        self.update_reward_setting(data)
+
+    def _game_start(self, data):
+        self.opponent_cards = data
         self.create_game_window()
-        self.comms.send_game_starting(self.mycards)
+        cells = self.game.get_cells()
+        for cell in cells:
+            cell.setAcceptDrops(False)
+
+    def start_game(self):
+        self.create_game_window()
+        self.comms.send_data('Game Start', self.mycards)
 
     def create_game_window(self):
         self.mycards = self.cardsmanager.get_hand()
@@ -111,7 +125,7 @@ class TripleTriad:
     def update_reward_setting(self, index):
         self.cardsmanager.set_reward_logic(index)
         if self.host:
-            self.comms.update_reward_setting(index)
+            self.comms.send_data('Reward Update', index)
         else:
             self.lobby_screen.rr_box.setCurrentIndex(index)
 
@@ -119,15 +133,15 @@ class TripleTriad:
         cells = self.game.get_cells()
         for eachcell in cells:
             eachcell.setAcceptDrops(False)
-        self.comms.card_place_notify(cell)
+        self.comms.send_data('Move Update', [cell.id, cell.card.id])
 
-    def ready_up(self):
+    def send_ready(self):
         self.lobby_screen.update_self_ready()
-        self.comms.player_ready(self.cardsmanager.get_hand())
+        self.comms.send_data('Ready', self.cardsmanager.get_hand())
 
-    def unready(self):
+    def send_not_ready(self):
         self.lobby_screen.update_self_not_ready()
-        self.comms.player_not_ready()
+        self.comms.send_data('Not Ready')
 
     def initialize_settings(self):
         if self.host:
@@ -146,7 +160,7 @@ class TripleTriad:
 
     def handle_gameover(self, cards: list, winstatus: str, logic_index: int):
         if logic_index == 1:
-            self.comms.send_card_loss(cards)
+            self.comms.send_data('Card Lost', cards)
         if len(cards) > 0:
             if winstatus == 'WINNER':
                 self.cardsmanager.add_cards_to_playerdata(cards)

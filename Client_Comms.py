@@ -57,23 +57,8 @@ class ClientUI(Client):
         self.error_dialog.finished.disconnect()
         self.send('Remove From Server List', self.server_name)
 
-    def player_ready(self, cardlist):
-        self.send('Ready', cardlist)
-
-    def player_not_ready(self):
-        self.send('Not Ready', '')
-
-    def send_game_starting(self, cardlist):
-        self.send('Game Start', cardlist)
-
-    def card_place_notify(self, cell):
-        self.send('Move Update', [cell.id, cell.card.id])
-
-    def send_card_loss(self, card):
-        self.send('Card Lost', card)
-
-    def update_reward_setting(self, index):
-        self.send('Reward Update', index)
+    def send_data(self, command, data=''):
+        self.send(command, data)
 
     def prompt_create_profile(self):
         return self.input_dialog.prompt_create_profile()

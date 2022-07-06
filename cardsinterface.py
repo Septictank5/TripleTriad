@@ -70,17 +70,21 @@ class CardHandler:
     def add_cards_to_playerdata(self, cards: list):
         playercards = self.player.get_cards()
         for card in cards:
-            playercards.append(card)
+            if card not in playercards:
+                playercards.append(card)
         playerhand = self.player.get_hand()
         cards_sorted = self.filehandler.update_and_save(playercards, playerhand)
         self.player.set_cardlist(cards_sorted)
 
     def remove_cards_from_playerdata(self, cards: list):
         playercards = self.player.get_cards()
-        self.player.fix_hand()
         playerhand = self.player.get_hand()
         for index, card in enumerate(cards):
-            playercards.remove(card)
+            if card in playercards:
+                playercards.remove(card)
+            if card in playerhand:
+                playerhand.remove(card)
+        self.player.fix_hand()
         cards_sorted = self.filehandler.update_and_save(playercards, playerhand)
         self.player.set_cardlist(cards_sorted)
 
