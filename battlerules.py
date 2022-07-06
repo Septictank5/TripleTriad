@@ -1,8 +1,19 @@
 class BattleRules:
-    def __init__(self):
+    def __init__(self, cells, rulesets: list):
         self.no_special_rules = True
-        self.same = False
-        self.plus = False
+        self.cells = cells
+
+        self.rulesets = {
+            'Same': 0,
+            'Plus': 0,
+            'Difference': 0,
+            'Combo': 0,
+            'Sudden Death': 0,
+            'Same Wall': 0
+        }
+
+        self.update_rules(rulesets)
+
         self.opposing_keys = {
             'top': 'bottom',
             'bottom': 'top',
@@ -21,3 +32,7 @@ class BattleRules:
 
     def standard_calc(self, cardpower1, cardpower2):
         return cardpower1 > cardpower2
+
+    def update_rules(self, rules: list):
+        for index, value in enumerate(rules):
+            self.rulesets[index] = value

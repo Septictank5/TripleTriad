@@ -125,14 +125,15 @@ class Cell(qtw.QLabel):
 class BoardHandler(qtc.QObject):
     gameover = qtc.pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, game_rules):
         super().__init__()
         self.cells = []
-        self.rule_handler = BattleRules()
 
         for i in range(9):
             self.cells.append(Cell(i))
             self.cells[i].cardplaced.connect(self.battle)
+
+        self.rule_handler = BattleRules(self.cells, game_rules)
 
     def battle(self, cellref: Cell):
         neighbors = cellref.get_neighbors()

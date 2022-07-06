@@ -1,6 +1,18 @@
 import PyQt5.QtWidgets as qtw
 import PyQt5.QtGui as qtg
+import PyQt5.QtCore as qtc
 from GameUI import GameWindow
+
+
+class TTCheckBox(qtw.QCheckBox):
+    state_change = qtc.pyqtSignal([str])
+
+    def __init__(self, text, parent=None):
+        super().__init__(text, parent)
+        self.clicked.connect(self.better_state_change)
+
+    def better_state_change(self):
+        self.state_change.emit(self.text())
 
 
 class LobbyWindow(qtw.QMainWindow):
@@ -65,15 +77,20 @@ class LobbyWindow(qtw.QMainWindow):
         self.rightpanel.addWidget(self.exit_button, 2)
 
     def _add_rules(self):
-        self.ruleslayout = qtw.QHBoxLayout()
-        self.ruleset_label = qtw.QLabel('Rules:')
-        self.ruleset_label.setFixedSize(100, 20)
-        self.ruleset_box = qtw.QComboBox()
-        self.ruleset_box.setFixedSize(150, 20)
-        self.ruleset_box.addItems(['No Rules', 'Same', 'Plus', 'Difference', 'Element'])
-        self.ruleslayout.addWidget(self.ruleset_label, 0)
-        self.ruleslayout.addWidget(self.ruleset_box, 1)
-        self.rightpanel.addLayout(self.ruleslayout, 3)
+        rules = ['Same', 'Plus', 'Difference', 'Combo', 'Sudden Death', 'Same Wall']
+        self.checkboxes = []
+        for index, rule in enumerate(rules):
+            self.checkboxes.append(TTCheckBox(rule))
+        self.rulesbox = qtw.QGroupBox('Rules')
+        self.ruleslayout = qtw.QGridLayout()
+        self.rulesbox.setLayout(self.ruleslayout)
+        self.ruleslayout.addWidget(self.checkboxes[0], 0, 0)
+        self.ruleslayout.addWidget(self.checkboxes[1], 0, 1)
+        self.ruleslayout.addWidget(self.checkboxes[2], 1, 0)
+        self.ruleslayout.addWidget(self.checkboxes[3], 1, 1)
+        self.ruleslayout.addWidget(self.checkboxes[4], 2, 0)
+        self.ruleslayout.addWidget(self.checkboxes[5], 2, 1)
+        self.rightpanel.addWidget(self.rulesbox, 3)
 
     def _add_restrictions(self):
         self.restrictions_layout = qtw.QHBoxLayout()
@@ -108,6 +125,15 @@ class LobbyWindow(qtw.QMainWindow):
 
     def get_rr_box_update(self):
         return self.rr_box.activated
+
+    def get_rules_checkboxes(self):
+        return self.checkboxes
+
+    def get_rules_checkboxes_state(self):
+        templist = []
+        for box in self.checkboxes:
+            templist.append(box.isChecked())
+        return templist
 
     def start_clicked(self):
         return self.start_button.clicked
@@ -162,5 +188,5 @@ class LobbyWindow(qtw.QMainWindow):
     def flip_settings_enabled(self):
         value = self.rr_box.isEnabled() is False
         self.rr_box.setEnabled(value)
-        self.ruleset_box.setEnabled(value)
+        self.rulesbox.setEnabled(value)
         self.restrictions_box.setEnabled(value)

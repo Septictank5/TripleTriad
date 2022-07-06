@@ -105,7 +105,7 @@ class WinScreen(qtw.QDialog):
 class GameWindow(qtw.QMainWindow):
     gameover = qtc.pyqtSignal([])
 
-    def __init__(self, parent, cardmanager: CardHandler):
+    def __init__(self, parent, cardmanager: CardHandler, game_rules: list):
         super().__init__(parent)
         self.setWindowTitle('Triple Triad')
         self.setFixedSize(1100, 900)
@@ -122,7 +122,7 @@ class GameWindow(qtw.QMainWindow):
         self._centralWidget = qtw.QWidget(self)
         self.setCentralWidget(self._centralWidget)
         self._centralWidget.setLayout(self.generallayout)
-        self.board = BoardHandler()
+        self.board = BoardHandler(game_rules)
         self.board.gameover.connect(self.is_winner)
         self.game_view()
 

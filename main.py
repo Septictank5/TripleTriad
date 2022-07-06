@@ -15,7 +15,9 @@ class TripleTriad:
         self.main_menu = self.comms.get_window()
         self.deck_viewer = DeckViewer(self.main_menu)
         self.lobby_screen = LobbyWindow(self.main_menu)
-        self._connect_signals()
+        self._main_menu_signals()
+        self._lobby_screen_signals()
+        self._deck_viewer_signals()
         self.main_menu.show()
         self.startup()
         self.handle_command = {
@@ -26,7 +28,8 @@ class TripleTriad:
             'Not Ready': self._not_ready,
             'Game Start': self._game_start,
             'Reward Update': self._reward_update,
-            'Card Lost': self._card_lost
+            'Card Lost': self._card_lost,
+            'Rules Update': self._rules_update
         }
 
     def startup(self):
@@ -40,14 +43,21 @@ class TripleTriad:
         self.cardsmanager.save_data()
         sys.exit()
 
-    def _connect_signals(self):
+    def _main_menu_signals(self):
         self.main_menu.quit_clicked().connect(self.lobby_screen.show)
         self.main_menu.deck_viewer_clicked().connect(self.start_cardviewer)
+
+    def _lobby_screen_signals(self):
         self.lobby_screen.view_deck_clicked().connect(self.start_cardviewer)
         self.lobby_screen.start_clicked().connect(self.start_game)
         self.lobby_screen.ready_clicked().connect(self.send_ready)
         self.lobby_screen.unready_clicked().connect(self.send_not_ready)
         self.lobby_screen.get_rr_box_update().connect(self.update_reward_setting)
+
+        for box in self.lobby_screen.get_rules_checkboxes():
+            box.state_change.connect(self._notify_rule_update)
+
+    def _deck_viewer_signals(self):
         self.deck_viewer.finished.connect(self._get_hand)
 
     def start_cardviewer(self):
@@ -106,6 +116,15 @@ class TripleTriad:
         for cell in cells:
             cell.setAcceptDrops(False)
 
+    def _rules_update(self, rulename):
+        for box in self.lobby_screen.get_rules_checkboxes():
+            if box.text() == rulename:
+                box.setChecked(box.isChecked() is False)
+
+    def _notify_rule_update(self, rulename):
+        print('notify rule updated')
+        self.comms.send_data('Rules Update', rulename)
+
     def start_game(self):
         self.create_game_window()
         self.comms.send_data('Game Start', self.mycards)
@@ -114,7 +133,8 @@ class TripleTriad:
         self.mycards = self.cardsmanager.get_hand()
         self.cardsmanager.set_game_cards(self.mycards + self.opponent_cards)
         self.lobby_screen.hide()
-        self.game = GameWindow(self.main_menu, self.cardsmanager)
+        game_rules = self.lobby_screen.get_rules_checkboxes_state()
+        self.game = GameWindow(self.main_menu, self.cardsmanager, game_rules)
         self.game.get_confirmed_rewards().connect(self.handle_gameover)
         self.game.show()
         cells = self.game.get_cells()
