@@ -39,7 +39,7 @@ class CardHandler:
 
     def save_data(self):
         name, cardlist, hand = self.player.get_profile_data()
-        self.filehandler.save_profile(name, cardlist, hand)
+        self.filehandler.save_profile(cardlist, hand)
 
     def get_rewards(self):
         card_data = self.filehandler.get_card_data()

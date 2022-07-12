@@ -1,7 +1,7 @@
 import PyQt5.QtGui as qtg
 import PyQt5.QtCore as qtc
 import PyQt5.QtWidgets as qtw
-from battlerules import BattleRules
+from battlerules import BattleRules, Rules
 
 
 class Card(qtw.QLabel):
@@ -11,8 +11,8 @@ class Card(qtw.QLabel):
         super().__init__()
         self.id = cardid
         self.name = carddict['name']
-        self.bluefile = 'Data/' + carddict['bluefile']
-        self.redfile = 'Data/' + carddict['redfile']
+        self.blue_image = 'Data/' + carddict['bluefile']
+        self.red_image = 'Data/' + carddict['redfile']
         self.powers = {
             'top': carddict['top'],
             'left': carddict['left'],
@@ -23,8 +23,8 @@ class Card(qtw.QLabel):
         self.can_click = can_click
 
         self.isPlayers = isplayers
-        self.setPixmap(qtg.QPixmap(self.bluefile)) if self.isPlayers is True else self.setPixmap(
-            qtg.QPixmap(self.redfile))
+        self.setPixmap(qtg.QPixmap(self.blue_image)) if self.isPlayers is True else self.setPixmap(
+            qtg.QPixmap(self.red_image))
 
         self.setFixedSize(125, 158)
         self.setScaledContents(True)
@@ -55,12 +55,12 @@ class Card(qtw.QLabel):
 
     def flip_player_owned(self):
         self.isPlayers = self.isPlayers is False
-        self.setPixmap(qtg.QPixmap(self.bluefile)) if self.isPlayers is True else self.setPixmap(
-            qtg.QPixmap(self.redfile))
+        self.setPixmap(qtg.QPixmap(self.blue_image)) if self.isPlayers is True else self.setPixmap(
+            qtg.QPixmap(self.red_image))
 
     def reset_pixmap(self):
-        self.setPixmap(qtg.QPixmap(self.bluefile)) if self.isPlayers is True else self.setPixmap(
-            qtg.QPixmap(self.redfile))
+        self.setPixmap(qtg.QPixmap(self.blue_image)) if self.isPlayers is True else self.setPixmap(
+            qtg.QPixmap(self.red_image))
 
     def get_pixmap(self):
         return self.pixmap()
@@ -136,14 +136,7 @@ class BoardHandler(qtc.QObject):
         self.rule_handler = BattleRules(self.cells, game_rules)
 
     def battle(self, cellref: Cell):
-        neighbors = cellref.get_neighbors()
-        templist = []
-        for key, value in neighbors.items():
-            if value is not None:
-                if self.cells[value].get_card() is not None:
-                    templist.append((key, self.cells[value]))
-
-        self.rule_handler.execute(cellref, templist)
+        self.rule_handler.execute(cellref)
         self._check_end_game()
 
     def battle_by_update(self, cellid, card):

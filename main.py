@@ -44,7 +44,7 @@ class TripleTriad:
         sys.exit()
 
     def _main_menu_signals(self):
-        self.main_menu.quit_clicked().connect(self.lobby_screen.show)
+        self.main_menu.quit_clicked().connect(self.shutdown)
         self.main_menu.deck_viewer_clicked().connect(self.start_cardviewer)
 
     def _lobby_screen_signals(self):
