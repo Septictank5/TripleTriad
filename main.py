@@ -46,6 +46,7 @@ class TripleTriad:
     def _main_menu_signals(self):
         self.main_menu.quit_clicked().connect(self.shutdown)
         self.main_menu.deck_viewer_clicked().connect(self.start_cardviewer)
+        self.main_menu.profile_clicked().connect(self._profile)
 
     def _lobby_screen_signals(self):
         self.lobby_screen.view_deck_clicked().connect(self.start_cardviewer)
@@ -59,6 +60,13 @@ class TripleTriad:
 
     def _deck_viewer_signals(self):
         self.deck_viewer.finished.connect(self._get_hand)
+
+    def _profile(self):
+        profiles = self.cardsmanager.get_profile_list()
+        dialog = self.main_menu.show_profile_screen(profiles)
+        dialog.profile_created.connect(self.cardsmanager.create_starter_deck)
+        dialog.profile_chosen.connect(self.cardsmanager.load_profile)
+        dialog.exec()
 
     def start_cardviewer(self):
         self.deck_viewer.set_hand(self.cardsmanager.get_hand())

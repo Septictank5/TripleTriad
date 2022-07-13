@@ -4,15 +4,15 @@ import PyQt5.QtWidgets as qtw
 from battlerules import BattleRules, Rules
 
 
-class Card(qtw.QLabel):
+class Card(qtw.QWidget):
     card_clicked = qtc.pyqtSignal([object])
 
-    def __init__(self, cardid, carddict, isplayers=True, can_move=True, can_click=False):
-        super().__init__()
+    def __init__(self, parent, cardid, carddict, isplayers=True, can_move=True, can_click=False):
+        super().__init__(parent)
         self.id = cardid
         self.name = carddict['name']
-        self.blue_image = 'Data/' + carddict['bluefile']
-        self.red_image = 'Data/' + carddict['redfile']
+        self.blue_image = qtg.QImage('Data/' + carddict['bluefile'])
+        self.red_image = qtg.QImage('Data/' + carddict['redfile'])
         self.powers = {
             'top': carddict['top'],
             'left': carddict['left'],
@@ -21,13 +21,36 @@ class Card(qtw.QLabel):
         }
         self.can_move = can_move
         self.can_click = can_click
+        self.in_move = False
 
         self.isPlayers = isplayers
-        self.setPixmap(qtg.QPixmap(self.blue_image)) if self.isPlayers is True else self.setPixmap(
-            qtg.QPixmap(self.red_image))
-
         self.setFixedSize(125, 158)
-        self.setScaledContents(True)
+        self.animation_timer = qtc.QTimer()
+        self.animation_timer.timeout.connect(self.animate)
+        self.move_timer = qtc.QTimer()
+        self.move_timer.timeout.connect(self.update_pos)
+        if self.isPlayers:
+            self.iteration = 255
+            self.state_machine = self.decrement_iteration
+        else:
+            self.iteration = 0
+            self.state_machine = self.increment_iteration
+
+    def paintEvent(self, event: qtg.QPaintEvent) -> None:
+        p = qtg.QPainter(self)
+        if self.in_move:
+            p.fillRect(self.rect(), qtc.Qt.transparent)
+            return
+        red_alpha = qtg.QImage(self.red_image.size(), qtg.QImage.Format_Alpha8)
+        red_alpha.fill(255 - self.iteration)
+        blue_alpha = red_alpha.copy()
+        blue_alpha.fill(self.iteration)
+        red_image = self.red_image.copy()
+        blue_image = self.blue_image.copy()
+        red_image.setAlphaChannel(red_alpha)
+        blue_image.setAlphaChannel(blue_alpha)
+        p.drawImage(self.rect(), red_image)
+        p.drawImage(self.rect(), blue_image)
 
     def mousePressEvent(self, event: qtg.QMouseEvent) -> None:
         if self.can_click:
@@ -39,31 +62,52 @@ class Card(qtw.QLabel):
         if self.id > 4 or not self.can_move:
             return
 
+        image = qtg.QPixmap(self.blue_image)
+
         mime_data = qtc.QMimeData()
 
         drag = qtg.QDrag(self)
         drag.setMimeData(mime_data)
         drag.setHotSpot(event.pos())
-        drag.setPixmap(self.pixmap().scaled(125, 158))
-        self.clear()
-
+        drag.setPixmap(image.scaled(125, 158))
+        self.in_move = True
+        self.update()
         dropaction = drag.exec_(qtc.Qt.MoveAction)
-        if dropaction == 0:
-            self.reset_pixmap()
-        else:
+
+        self.in_move = False
+        self.update()
+
+        if dropaction != 0:
             self.can_move = False
 
     def flip_player_owned(self):
         self.isPlayers = self.isPlayers is False
-        self.setPixmap(qtg.QPixmap(self.blue_image)) if self.isPlayers is True else self.setPixmap(
-            qtg.QPixmap(self.red_image))
+        self.animation_timer.start(1000//60)
 
-    def reset_pixmap(self):
-        self.setPixmap(qtg.QPixmap(self.blue_image)) if self.isPlayers is True else self.setPixmap(
-            qtg.QPixmap(self.red_image))
+    def animate(self):
+        self.state_machine()
+        self.update()
 
-    def get_pixmap(self):
-        return self.pixmap()
+    def update_pos(self):
+        self.move(qtg.QCursor.pos())
+        self.update()
+
+    def increment_iteration(self):
+        self.iteration += 3
+        if self.iteration >= 255:
+            self.iteration = 255
+            self.state_machine = self.decrement_iteration
+            self.animation_timer.stop()
+
+    def decrement_iteration(self):
+        self.iteration -= 3
+        if self.iteration <= 0:
+            self.iteration = 0
+            self.state_machine = self.increment_iteration
+            self.animation_timer.stop()
+
+    def sizeHint(self):
+        return qtc.QSize(125, 158)
 
     def set_clickable(self):
         self.can_click = self.can_click is False
@@ -102,15 +146,12 @@ class Cell(qtw.QLabel):
         event.source().move(self.pos())
         event.setDropAction(qtc.Qt.MoveAction)
         self.card = event.source()
-        self.card.reset_pixmap()
-        self.setPixmap(self.card.get_pixmap())
         event.accept()
         self.cardplaced.emit(self)
 
     def update_cell_card(self, card):
         card.move(self.pos())
         self.card = card
-        self.setPixmap(self.card.get_pixmap())
 
     def flip_card(self):
         self.card.flip_player_owned()

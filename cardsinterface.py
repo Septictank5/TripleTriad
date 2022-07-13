@@ -58,6 +58,9 @@ class CardHandler:
     def get_game_cards(self):
         return self.game_cards
 
+    def get_profile_list(self):
+        return self.filehandler.get_profile_list()
+
     def get_random_card(self):
         value = 0
         for card in self.game_cards:

@@ -54,10 +54,10 @@ class WinScreen(qtw.QDialog):
 
         for index, card in enumerate(self.cards):
             if self.logic_index == 1:
-                self.cardobjects.append(Card(index, card, can_move=False, can_click=True))
+                self.cardobjects.append(Card(self, index, card, can_move=False, can_click=True))
                 self.cardobjects[index].card_clicked.connect(self.display_card)
             else:
-                self.cardobjects.append(Card(index, card, can_move=False))
+                self.cardobjects.append(Card(self, index, card, can_move=False))
                 if card == self.cards[-1]:
                     self.rewards = self.cards
             self.cardlayout.addWidget(self.cardobjects[index])
@@ -90,7 +90,7 @@ class WinScreen(qtw.QDialog):
         self.winloss_text.setText(f"Opponent Chose the following Card(s)!\n -Card(s) Lost-")
         self.rewards = cards
         for card in cards:
-            cardobject = Card(0, card, can_move=False)
+            cardobject = Card(self, 0, card, can_move=False)
             self.cardlayout.addWidget(cardobject)
         self.card_chosen = True
 
@@ -131,9 +131,9 @@ class GameWindow(qtw.QMainWindow):
         self.cardobjects = []
         for index, carddetails in enumerate(self.cardmanager.get_game_cards()):
             if index < 5:
-                self.cardobjects.append(Card(index, carddetails))
+                self.cardobjects.append(Card(self, index, carddetails))
             else:
-                self.cardobjects.append(Card(index, carddetails, False))
+                self.cardobjects.append(Card(self, index, carddetails, False))
 
         self.cellslayout = qtw.QGridLayout()
         self.cellslayout.setHorizontalSpacing(2)
@@ -144,22 +144,22 @@ class GameWindow(qtw.QMainWindow):
 
         self.generallayout.addLayout(self.cellslayout, 2, 1)
 
-        self.framelayout = qtw.QVBoxLayout()
+        self.p1handlayout = qtw.QVBoxLayout()
         for index, card in enumerate(self.cardobjects[:5]):
-            self.framelayout.addWidget(card, index)
-        self.framelayout2 = qtw.QVBoxLayout()
+            self.p1handlayout.addWidget(card, index)
+        self.p2handlayout = qtw.QVBoxLayout()
         for index, card in enumerate(self.cardobjects[5:]):
-            self.framelayout2.addWidget(card, index)
-        self.generallayout.addLayout(self.framelayout, 0, 0, 5, 1)
-        self.generallayout.addLayout(self.framelayout2, 0, 4, 5, 1)
+            self.p2handlayout.addWidget(card, index)
+        self.generallayout.addLayout(self.p1handlayout, 0, 0, 5, 1)
+        self.generallayout.addLayout(self.p2handlayout, 0, 4, 5, 1)
 
         self.frames = []
 
         for index, item in enumerate(self.frames):
             if index < 5:
-                self.framelayout.addWidget(item, index)
+                self.p1handlayout.addWidget(item, index)
             else:
-                self.framelayout2.addWidget(item, index % 5)
+                self.p2handlayout.addWidget(item, index % 5)
 
     def get_cells(self):
         return self.board.get_cells()
@@ -186,4 +186,3 @@ class GameWindow(qtw.QMainWindow):
             self.winscreen.set_winstatus('TIED')
 
         self.winscreen.show()
-

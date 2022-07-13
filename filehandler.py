@@ -17,8 +17,11 @@ class FileHandler:
 
     def profile_created(self, name):
         self.active_profile = self.directory + name + '.txt'
+        with open(self.saveslist, 'r') as afile:
+            saves = afile.readlines()
+        saves.insert(0, self.active_profile + '\n')
         with open(self.saveslist, 'w') as afile:
-            afile.write(self.active_profile)
+            afile.writelines(saves)
         with open(self.active_profile, 'w') as savefile:
             json.dump({}, savefile, indent=4)
 
@@ -30,12 +33,12 @@ class FileHandler:
         with open(self.saveslist, 'r') as savelist:
             data = savelist.readlines()
 
-        if self.active_profile in data:
-            index = data.index(self.active_profile)
+        if self.active_profile + '\n' in data:
+            index = data.index(self.active_profile + '\n')
             moving = data.pop(index)
             data.insert(0, moving)
         else:
-            data.insert(0, self.active_profile)
+            data.insert(0, self.active_profile + '\n')
 
         with open(self.saveslist, 'w') as savelist:
             savelist.writelines(data)
@@ -53,6 +56,8 @@ class FileHandler:
 
         if filename == '':
             return None, None, []
+
+        filename = filename.replace('\n', '')
 
         with open(filename, 'r') as cardfile:
             cards_for_game, cardlist = json.load(cardfile)
@@ -107,6 +112,18 @@ class FileHandler:
                     templist.append(card)
 
         self.save_profile(cards, cards_for_game)
+        return templist
+
+    def get_profile_list(self):
+        with open(self.saveslist, 'r') as savesfile:
+            saves = savesfile.readlines()
+
+        templist = []
+        for string in saves:
+            savename = string.replace('\n', '')
+            name = self.get_name_from_filename(savename)
+            templist.append(name)
+
         return templist
 
     def _create_backup(self, profile):
