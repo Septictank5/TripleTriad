@@ -39,21 +39,21 @@ class TripleTriad:
                 playername = self.comms.prompt_create_profile()[0]
             self.cardsmanager.create_starter_deck(playername)
 
-    def shutdown(self):
+    def _shutdown(self):
         self.cardsmanager.save_data()
         sys.exit()
 
     def _main_menu_signals(self):
-        self.main_menu.quit_clicked().connect(self.shutdown)
-        self.main_menu.deck_viewer_clicked().connect(self.start_cardviewer)
+        self.main_menu.quit_clicked().connect(self._shutdown)
+        self.main_menu.deck_viewer_clicked().connect(self._start_cardviewer)
         self.main_menu.profile_clicked().connect(self._profile)
 
     def _lobby_screen_signals(self):
-        self.lobby_screen.view_deck_clicked().connect(self.start_cardviewer)
-        self.lobby_screen.start_clicked().connect(self.start_game)
-        self.lobby_screen.ready_clicked().connect(self.send_ready)
-        self.lobby_screen.unready_clicked().connect(self.send_not_ready)
-        self.lobby_screen.get_rr_box_update().connect(self.update_reward_setting)
+        self.lobby_screen.view_deck_clicked().connect(self._start_cardviewer)
+        self.lobby_screen.start_clicked().connect(self._start_game)
+        self.lobby_screen.ready_clicked().connect(self._send_ready)
+        self.lobby_screen.unready_clicked().connect(self._send_not_ready)
+        self.lobby_screen.get_rr_box_update().connect(self._update_reward_setting)
 
         for box in self.lobby_screen.get_rules_checkboxes():
             box.state_change.connect(self._notify_rule_update)
@@ -68,7 +68,7 @@ class TripleTriad:
         dialog.profile_chosen.connect(self.cardsmanager.load_profile)
         dialog.exec()
 
-    def start_cardviewer(self):
+    def _start_cardviewer(self):
         self.deck_viewer.set_hand(self.cardsmanager.get_hand())
         self.deck_viewer.start_viewer(self.cardsmanager.get_cards())
         self.deck_viewer.exec()
@@ -115,7 +115,7 @@ class TripleTriad:
         self.game.winscreen.card_loss_update(data)
 
     def _reward_update(self, data):
-        self.update_reward_setting(data)
+        self._update_reward_setting(data)
 
     def _game_start(self, data):
         self.opponent_cards = data
@@ -133,7 +133,7 @@ class TripleTriad:
         print('notify rule updated')
         self.comms.send_data('Rules Update', rulename)
 
-    def start_game(self):
+    def _start_game(self):
         self.create_game_window()
         self.comms.send_data('Game Start', self.mycards)
 
@@ -150,7 +150,7 @@ class TripleTriad:
         for cell in cells:
             cell.cardplaced.connect(self.card_placed)
 
-    def update_reward_setting(self, index):
+    def _update_reward_setting(self, index):
         self.cardsmanager.set_reward_logic(index)
         if self.host:
             self.comms.send_data('Reward Update', index)
@@ -163,11 +163,11 @@ class TripleTriad:
             eachcell.setAcceptDrops(False)
         self.comms.send_data('Move Update', [cell.id, cell.card.id])
 
-    def send_ready(self):
+    def _send_ready(self):
         self.lobby_screen.update_self_ready()
         self.comms.send_data('Ready', self.cardsmanager.get_hand())
 
-    def send_not_ready(self):
+    def _send_not_ready(self):
         self.lobby_screen.update_self_not_ready()
         self.comms.send_data('Not Ready')
 
