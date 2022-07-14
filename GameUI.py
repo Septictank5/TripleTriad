@@ -1,8 +1,39 @@
 import PyQt5.QtGui as qtg
 import PyQt5.QtWidgets as qtw
 import PyQt5.QtCore as qtc
+from PyQt5.QtMultimedia import *
 from Board import BoardHandler, Card
 from cardsinterface import CardHandler
+
+
+class Playlist:
+    def __init__(self):
+        self.playlist = QMediaPlaylist()
+        self.playlist.addMedia(QMediaContent(qtc.QUrl.fromLocalFile('Audio/TT.mp3')))
+        self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
+        self.player = QMediaPlayer()
+        self.volume = 50
+        self.player.setVolume(self.volume)
+        self.player.setPlaylist(self.playlist)
+        self.player.play()
+
+    def switch(self):
+        self.player.stop()
+        self.playlist.clear()
+        self.player.setMedia(QMediaContent(qtc.QUrl.fromLocalFile('Audio/fanfare.mp3')))
+        self.player.play()
+
+    def end(self):
+        self.timer = qtc.QTimer()
+        self.timer.timeout.connect(self.fadeout)
+        self.timer.start(1000//20)
+
+    def fadeout(self):
+        self.volume -= 1
+        self.player.setVolume(self.volume)
+        if self.volume == 0:
+            self.player.stop()
+            self.timer.stop()
 
 
 class WinScreen(qtw.QDialog):
@@ -107,6 +138,8 @@ class GameWindow(qtw.QMainWindow):
 
     def __init__(self, parent, cardmanager: CardHandler, game_rules: list):
         super().__init__(parent)
+        self.playlist = Playlist()
+        self.gameover.connect(self.playlist.switch)
         self.setWindowTitle('Triple Triad')
         self.setFixedSize(1100, 900)
         self.cardmanager = cardmanager
@@ -175,6 +208,9 @@ class GameWindow(qtw.QMainWindow):
 
     def get_confirmed_rewards(self):
         return self.winscreen.rewards_confirmed
+
+    def closeEvent(self, event: qtg.QCloseEvent) -> None:
+        self.playlist.end()
 
     def is_winner(self):
         self.gameover.emit()

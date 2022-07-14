@@ -1,5 +1,6 @@
 import PyQt5.QtWidgets as qtw
 import PyQt5.QtCore as qtc
+from PyQt5.QtMultimedia import *
 from LobbyUI import LobbyWindow, TTCheckBox
 from cardsinterface import CardHandler
 from deckviewer import DeckViewer
@@ -7,6 +8,24 @@ from GameUI import GameWindow
 import sys
 from Client_Comms import ClientUI
 from cpu_handler import CPUHandler
+
+
+class MMPlaylist:
+    def __init__(self):
+        self.playlist = QMediaPlaylist()
+        self.playlist.addMedia(QMediaContent(qtc.QUrl.fromLocalFile('Audio/SSS.mp3')))
+        self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
+        self.player = QMediaPlayer()
+        self.volume = 50
+        self.player.setVolume(self.volume)
+        self.player.setPlaylist(self.playlist)
+        self.player.play()
+
+    def end(self):
+        self.player.stop()
+
+    def restart(self):
+        self.player.play()
 
 
 class VSComputerDialog(qtw.QDialog):
@@ -47,6 +66,7 @@ class VSComputerDialog(qtw.QDialog):
 
         self.cancel_button = qtw.QPushButton('CANCEL')
         self.cancel_button.setFixedSize(100, 40)
+        self.cancel_button.clicked.connect(self.close)
         button_layout.addWidget(self.cancel_button)
 
         self.main_layout.addLayout(button_layout, 1)
@@ -64,6 +84,7 @@ class VSComputerDialog(qtw.QDialog):
 
 class TripleTriad:
     def __init__(self):
+        self.playlist = MMPlaylist()
         self.computer_game = False
         self.comms = ClientUI()
         self.cardsmanager = CardHandler()
@@ -95,6 +116,9 @@ class TripleTriad:
                 playername = self.comms.prompt_create_profile()[0]
             self.cardsmanager.create_starter_deck(playername)
 
+    def failed(self):
+        print('fail')
+
     def _shutdown(self):
         self.cardsmanager.save_data()
         sys.exit()
@@ -108,6 +132,7 @@ class TripleTriad:
     def _lobby_screen_signals(self):
         self.lobby_screen.view_deck_clicked().connect(self._start_cardviewer)
         self.lobby_screen.start_clicked().connect(self._start_game)
+        self.lobby_screen.start_clicked().connect(self.playlist.end)
         self.lobby_screen.ready_clicked().connect(self._send_ready)
         self.lobby_screen.unready_clicked().connect(self._send_not_ready)
         self.lobby_screen.get_rr_box_update().connect(self._update_reward_setting)
@@ -261,6 +286,7 @@ class TripleTriad:
     def cpu_rules(self):
         dialog = VSComputerDialog(self.main_menu)
         dialog.confirmed.connect(self.play_computer)
+        dialog.confirmed.connect(self.playlist.end)
         dialog.open()
 
     def play_computer(self, game_rules):
@@ -282,7 +308,11 @@ class TripleTriad:
         for eachcell in cells:
             eachcell.setAcceptDrops(False)
         if self.game_on:
-            self.handle_cpu_turn()
+            self.timer = qtc.QTimer()
+            self.timer.setSingleShot(True)
+            self.timer.timeout.connect(self.handle_cpu_turn)
+            self.timer.start(1000)
+
 
     def handle_cpu_turn(self):
         cells = self.game.get_cells()
