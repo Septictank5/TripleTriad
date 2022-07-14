@@ -282,6 +282,7 @@ class TripleTriad:
             self.initialize_settings()
         else:
             self.computer_game = False
+        self.playlist.restart()
 
     def cpu_rules(self):
         dialog = VSComputerDialog(self.main_menu)
