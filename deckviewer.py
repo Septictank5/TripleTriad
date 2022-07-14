@@ -180,10 +180,7 @@ class DeckViewer(qtw.QDialog):
             label.update_pixmap(cardlist[index])
 
     def closeEvent(self, event: qtg.QCloseEvent) -> None:
-        templist = []
-        for label in self.hand:
-            if label.card_details != {}:
-                templist.append(label.card_details)
+        templist = self.get_hand()
 
         if len(templist) == 5:
             self.finished.emit(1)

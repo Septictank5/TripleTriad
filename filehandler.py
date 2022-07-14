@@ -137,3 +137,36 @@ class FileHandler:
     def get_random_card_from_group(self, group):
         index = random.randrange(0, len(self.card_data[group]))
         return self.card_data[group][index]
+
+    def gen_hand_of_level(self, average):
+        start = average - 2 if average - 2 >= 0 else 0
+        end = average + 2 if average + 2 <= 9 else 9
+        templist = []
+        for i in range(5):
+            templist.append(random.randint(start, end))
+        list_average = self._mean_of_list_values(templist)
+        while list_average < average:
+            index = random.randrange(0, len(templist))
+            templist[index] += 1
+            list_average = self._mean_of_list_values(templist)
+        while list_average > average:
+            index = random.randrange(0, len(templist))
+            templist[index] -= 1
+            list_average = self._mean_of_list_values(templist)
+        cpu_hand = []
+        for i in range(len(templist)):
+            index = templist[i]
+            card_index = random.randrange(0, len(self.card_data[index]))
+            card = self.card_data[index][card_index]
+            while card in cpu_hand:
+                card_index = random.randrange(0, len(self.card_data[index]))
+                card = self.card_data[index][card_index]
+            cpu_hand.append(card)
+        return cpu_hand
+
+    def _mean_of_list_values(self, number_list):
+        value = 0
+        for item in number_list:
+            value += item
+        return value // len(number_list)
+

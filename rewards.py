@@ -15,8 +15,10 @@ class RewardsHandler:
         average = self._get_average_card_level(game_cards)
         templist = []
         for i in range(average - 1, average + 3):
-            if i > 10:
+            if i > 9:
                 break
+            if i < 0:
+                continue
             templist.append(i)
 
         weights = [25, 25, 35, 15]

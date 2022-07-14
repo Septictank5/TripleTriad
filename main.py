@@ -1,14 +1,70 @@
 import PyQt5.QtWidgets as qtw
-from LobbyUI import LobbyWindow
+import PyQt5.QtCore as qtc
+from LobbyUI import LobbyWindow, TTCheckBox
 from cardsinterface import CardHandler
 from deckviewer import DeckViewer
 from GameUI import GameWindow
 import sys
 from Client_Comms import ClientUI
+from cpu_handler import CPUHandler
+
+
+class VSComputerDialog(qtw.QDialog):
+    confirmed = qtc.pyqtSignal([list])
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setWindowTitle('VS Computer Rules')
+        self.main_layout = qtw.QVBoxLayout()
+        self.main_layout.setContentsMargins(50, 0, 50, 0)
+        self.setFixedSize(300, 300)
+        self.setLayout(self.main_layout)
+        self.create_view()
+
+    def create_view(self):
+        rules = ['Same', 'Plus', 'Difference', 'Combo', 'Sudden Death', 'Same Wall']
+        self.checkboxes = []
+        for index, rule in enumerate(rules):
+            self.checkboxes.append(TTCheckBox(rule))
+        self.rulesbox = qtw.QGroupBox('Rules')
+        self.rulesbox.setFixedSize(200, 200)
+        self.ruleslayout = qtw.QGridLayout()
+        self.rulesbox.setLayout(self.ruleslayout)
+        self.ruleslayout.addWidget(self.checkboxes[0], 0, 0)
+        self.ruleslayout.addWidget(self.checkboxes[1], 0, 1)
+        self.ruleslayout.addWidget(self.checkboxes[2], 1, 0)
+        self.ruleslayout.addWidget(self.checkboxes[3], 1, 1)
+        self.ruleslayout.addWidget(self.checkboxes[4], 2, 0)
+        self.ruleslayout.addWidget(self.checkboxes[5], 2, 1)
+        self.main_layout.addWidget(self.rulesbox, 0)
+
+        button_layout = qtw.QHBoxLayout()
+        #  button_layout.setContentsMargins(1, 0, 1, 0)
+        self.ok_button = qtw.QPushButton('Play')
+        self.ok_button.setFixedSize(100, 40)
+        self.ok_button.clicked.connect(self.dialog_confirmed)
+        button_layout.addWidget(self.ok_button, 0)
+
+        self.cancel_button = qtw.QPushButton('CANCEL')
+        self.cancel_button.setFixedSize(100, 40)
+        button_layout.addWidget(self.cancel_button)
+
+        self.main_layout.addLayout(button_layout, 1)
+
+    def dialog_confirmed(self):
+        self.confirmed.emit(self.get_checkbox_states())
+        self.close()
+
+    def get_checkbox_states(self):
+        templist = []
+        for box in self.checkboxes:
+            templist.append(box.isChecked())
+        return templist
 
 
 class TripleTriad:
     def __init__(self):
+        self.computer_game = False
         self.comms = ClientUI()
         self.cardsmanager = CardHandler()
         self.comms.readyRead.connect(self.receive_data)
@@ -47,6 +103,7 @@ class TripleTriad:
         self.main_menu.quit_clicked().connect(self._shutdown)
         self.main_menu.deck_viewer_clicked().connect(self._start_cardviewer)
         self.main_menu.profile_clicked().connect(self._profile)
+        self.main_menu.vs_computer_clicked().connect(self.cpu_rules)
 
     def _lobby_screen_signals(self):
         self.lobby_screen.view_deck_clicked().connect(self._start_cardviewer)
@@ -195,8 +252,50 @@ class TripleTriad:
             if winstatus == 'LOSER':
                 self.cardsmanager.remove_cards_from_playerdata(cards)
         self.game.close()
-        self.flip_host()
-        self.initialize_settings()
+        if not self.computer_game:
+            self.flip_host()
+            self.initialize_settings()
+        else:
+            self.computer_game = False
+
+    def cpu_rules(self):
+        dialog = VSComputerDialog(self.main_menu)
+        dialog.confirmed.connect(self.play_computer)
+        dialog.open()
+
+    def play_computer(self, game_rules):
+        self.game_on = True
+        self.computer_game = True
+        self.cards_for_game = self.cardsmanager.get_cards_for_cpu_game()
+        self.game = GameWindow(self.main_menu, self.cardsmanager, game_rules)
+        self.game.gameover.connect(self._end_cpu_game)
+        self.cardsmanager.set_computer_cards(self.game.get_cards()[5:])
+        self.game.get_confirmed_rewards().connect(self.handle_gameover)
+        self.game.show()
+        cells = self.game.get_cells()
+
+        for cell in cells:
+            cell.cardplaced.connect(self.card_placed_cpu_game)
+
+    def card_placed_cpu_game(self, cell):
+        cells = self.game.get_cells()
+        for eachcell in cells:
+            eachcell.setAcceptDrops(False)
+        if self.game_on:
+            self.handle_cpu_turn()
+
+    def handle_cpu_turn(self):
+        cells = self.game.get_cells()
+        cards = self.cardsmanager.get_computer_hand()
+        cpu = CPUHandler(cells, cards)
+        cell, card = cpu.execute()
+        self.game.do_battle(cell.id, card.id - 5)
+        self.cardsmanager.remove_from_computer(card)
+        for cell in cells:
+            cell.setAcceptDrops(True)
+
+    def _end_cpu_game(self):
+        self.game_on = False
 
     def flip_host(self):
         self.host = self.host is False
@@ -204,6 +303,8 @@ class TripleTriad:
     # noinspection PyUnusedLocal
     def _get_hand(self, value):
         self.cards_for_game = self.deck_viewer.get_hand()
+        self.cardsmanager.set_game_cards(self.cards_for_game)
+        self.cardsmanager.set_hand(self.cards_for_game)
 
 
 def main():

@@ -11,6 +11,7 @@ class CardHandler:
         self.player = Player()
         self.filehandler = FileHandler()
         self.get_last_profile()
+        self.computer_hand = None
         self.game_cards = None
 
     def load_profile(self, name):
@@ -28,6 +29,26 @@ class CardHandler:
         name, cardlist, hand = self.filehandler.get_last_profile()
         self.player.set_from_profile(name, cardlist, hand)
 
+    def get_cards_for_cpu_game(self):
+        playerhand = self.player.get_hand()
+        average_level = self._get_average_card_level(playerhand)
+        computer_hand = self.filehandler.gen_hand_of_level(average_level)
+        self.set_game_cards(playerhand + computer_hand)
+        return playerhand + computer_hand
+
+    def set_computer_cards(self, cards):
+        self.computer_hand = cards
+
+    def remove_from_computer(self, card):
+        self.computer_hand.remove(card)
+
+    def _get_average_card_level(self, cards):
+        value = 0
+        for card in cards:
+            value += card['group']
+
+        return value // len(cards)
+
     def get_hand(self):
         return self.player.get_hand()
 
@@ -36,6 +57,9 @@ class CardHandler:
 
     def get_cards(self):
         return self.player.get_cards()
+
+    def set_hand(self, cards):
+        self.player.set_hand(cards)
 
     def save_data(self):
         name, cardlist, hand = self.player.get_profile_data()
@@ -46,7 +70,6 @@ class CardHandler:
         return self.rewards.execute(card_data, self.game_cards)
 
     def set_reward_logic(self, index):
-        print(index)
         self.rewards.set_logic(index)
 
     def get_logic(self):
@@ -90,6 +113,9 @@ class CardHandler:
         self.player.fix_hand()
         cards_sorted = self.filehandler.update_and_save(playercards, playerhand)
         self.player.set_cardlist(cards_sorted)
+
+    def get_computer_hand(self):
+        return self.computer_hand
 
 
 

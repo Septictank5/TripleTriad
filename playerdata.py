@@ -52,6 +52,9 @@ class Player:
     def set_cardlist(self, cardlist):
         self.cardlist = cardlist
 
+    def set_hand(self, cards):
+        self.hand = cards
+
 
 
 

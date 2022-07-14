@@ -93,14 +93,14 @@ class Card(qtw.QWidget):
         self.update()
 
     def increment_iteration(self):
-        self.iteration += 3
+        self.iteration += 10
         if self.iteration >= 255:
             self.iteration = 255
             self.state_machine = self.decrement_iteration
             self.animation_timer.stop()
 
     def decrement_iteration(self):
-        self.iteration -= 3
+        self.iteration -= 10
         if self.iteration <= 0:
             self.iteration = 0
             self.state_machine = self.increment_iteration

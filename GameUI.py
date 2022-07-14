@@ -103,7 +103,7 @@ class WinScreen(qtw.QDialog):
 
 
 class GameWindow(qtw.QMainWindow):
-    gameover = qtc.pyqtSignal([])
+    gameover = qtc.pyqtSignal()
 
     def __init__(self, parent, cardmanager: CardHandler, game_rules: list):
         super().__init__(parent)
@@ -164,6 +164,9 @@ class GameWindow(qtw.QMainWindow):
     def get_cells(self):
         return self.board.get_cells()
 
+    def get_cards(self):
+        return self.cardobjects
+
     def do_battle(self, cellid, cardid):
         for card in self.cardobjects:
             if card.id == cardid + 5:
@@ -174,6 +177,7 @@ class GameWindow(qtw.QMainWindow):
         return self.winscreen.rewards_confirmed
 
     def is_winner(self):
+        self.gameover.emit()
         value = 0
         for card in self.cardobjects:
             if card.isPlayers:

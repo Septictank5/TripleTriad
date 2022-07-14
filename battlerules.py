@@ -40,8 +40,6 @@ class BattleRules:
             self._calc_plus(played_card, opposing_cells)
         for key, cell in opposing_cells:
             other_card = cell.get_card()
-            print(played_card.isPlayers, other_card.isPlayers)
-            print(self._standard_calc(played_card, other_card, key))
             if played_card.isPlayers == other_card.isPlayers:
                 continue
             if self._standard_calc(played_card, other_card, key):
