@@ -140,7 +140,7 @@ class ProfileDialog(qtw.QDialog):
 class MainMenu(qtw.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('client')
+        self.setWindowTitle('Triple Triad')
         self.setFixedSize(320, 700)
         self.generallayout = qtw.QVBoxLayout()
         self._centralWidget = qtw.QWidget(self)

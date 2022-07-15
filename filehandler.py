@@ -54,13 +54,13 @@ class FileHandler:
         with open(self.saveslist, 'r') as savelist:
             filename = savelist.readline()
 
-        if filename == '':
-            return None, None, []
-
         filename = filename.replace('\n', '')
 
-        with open(filename, 'r') as cardfile:
-            cards_for_game, cardlist = json.load(cardfile)
+        try:
+            with open(filename, 'r') as cardfile:
+                cards_for_game, cardlist = json.load(cardfile)
+        except FileNotFoundError:
+            return None, None, []
 
         player_name = self.get_name_from_filename(filename)
         self.active_profile = filename
@@ -154,6 +154,8 @@ class FileHandler:
             templist[index] -= 1
             list_average = self._mean_of_list_values(templist)
         cpu_hand = []
+        print(list_average, average)
+        print(templist)
         for i in range(len(templist)):
             index = templist[i]
             card_index = random.randrange(0, len(self.card_data[index]))
