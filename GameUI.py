@@ -64,7 +64,6 @@ class WinScreen(qtw.QDialog):
         self.generallayout.addLayout(self.cardlayout, 1)
         self.cardobjects = []
         if self.winstatus == 'LOSER':
-            self.setWindowTitle('Reven')
             if self.logic_index == 1:
                 self.awaiting_card()
                 return
