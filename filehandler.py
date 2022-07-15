@@ -74,32 +74,32 @@ class FileHandler:
 
     def create_starter_deck(self):
         x = 0
-        length = len(self.card_data[2])
+        length = len(self.card_data[0])
         recieved_cards = []
         templist = []
-        while x < 50:
+        while x < 5:
             value = random.randrange(0, length)
             if self.card_data[2][value] not in recieved_cards:
+                recieved_cards.append(self.card_data[0][value])
+                templist.append(self.card_data[0][value])
+                x += 1
+        x = 0
+        length = len(self.card_data[2])
+        recieved_cards.clear()
+        while x < 5:
+            value = random.randrange(0, length)
+            if self.card_data[4][value] not in recieved_cards:
                 recieved_cards.append(self.card_data[2][value])
                 templist.append(self.card_data[2][value])
                 x += 1
         x = 0
-        length = len(self.card_data[4])
+        length = len(self.card_data[3])
         recieved_cards.clear()
-        while x < 3:
-            value = random.randrange(0, length)
-            if self.card_data[4][value] not in recieved_cards:
-                recieved_cards.append(self.card_data[4][value])
-                templist.append(self.card_data[4][value])
-                x += 1
-        x = 0
-        length = len(self.card_data[6])
-        recieved_cards.clear()
-        while x < 2:
+        while x < 5:
             value = random.randrange(0, length)
             if self.card_data[6][value] not in recieved_cards:
-                recieved_cards.append(self.card_data[6][value])
-                templist.append(self.card_data[6][value])
+                recieved_cards.append(self.card_data[3][value])
+                templist.append(self.card_data[3][value])
                 x += 1
 
         return templist
